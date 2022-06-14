@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/index",
+    "pages/core",
+    "pages/auxiliary",
+    "pages/compression",
+    "pages/okio_sample",
+    "pages/sample",
+    "pages/uploadAndDownload"
+  ]
+}

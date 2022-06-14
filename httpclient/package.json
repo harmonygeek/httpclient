@@ -1,0 +1,40 @@
+{
+  "name": "@ohos/httpclient",
+  "keywords": [
+    "httpclient",
+    "OpenHarmony",
+    "Sync and Async calls",
+    "Cookies",
+    "GZip Shrink",
+    "okhttp"
+  ],
+  "description": "httpclient is a efficient HTTP client for OpenHarmony.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "ohos": {
+    "org": "opensource"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "ohos_tpc",
+  "types": "",
+  "repository": "https://gitee.com/openharmony-tpc/httpclient",
+  "license": "Apache License 2.0",
+  "dependencies": {
+    "jszip": "^3.9.1",
+    "long": "^5.2.0",
+    "snappyjs": "^0.6.1",
+    "text-encoding": "^0.7.0",
+    "ts-custom-error": "^3.2.0"
+  },
+  "devDependencies": {},
+  "tags": [
+    "httpclient",
+    "OpenHarmony",
+    "Sync and Async calls",
+    "Cookies",
+    "GZip Shrink",
+    "okhttp"
+  ]
+}

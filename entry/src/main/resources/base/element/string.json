@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "HttpClient-Sample"
+    },
+    {
+      "name": "MainAbility_desc",
+      "value": "Sample app for Httpclient"
+    },
+    {
+      "name": "MainAbility_label",
+      "value": "HttpClient"
+    }
+  ]
+}

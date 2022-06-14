@@ -1,0 +1,11 @@
+{
+  "module": {
+    "name": "httpclient",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ],
+    "uiSyntax": "ets"
+  }
+}

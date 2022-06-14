@@ -1,0 +1,10 @@
+{
+    
+    "debug_mode" : false,
+    "connection_timeout" :10000,
+    "read_timeout" : 10000,
+    "write_timeout" : 10000,
+    "user_agent" :"",
+    "content_type" :"application/json"
+       
+}
