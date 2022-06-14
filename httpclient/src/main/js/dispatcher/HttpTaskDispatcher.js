@@ -19,6 +19,11 @@ import Log from '../utils/log';
 import {Interceptor} from './../utils/Interceptor'
 
 class HttpTaskDispatcher {
+
+    runningQueue = [];
+    waitingQueue = [];
+    syncCallObject = null;
+    asyncCallObject = null;
   constructor() {
     // Array is used to implement a Queue
     this.runningQueue = [];

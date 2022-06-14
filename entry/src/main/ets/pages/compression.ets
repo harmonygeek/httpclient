@@ -98,10 +98,7 @@ struct Compression {
         Button('GZIP Encode File').width('80%').height('100%').fontSize(18).fontColor(0xCCCCCC)
           .align(Alignment.Center).margin(10)
           .onClick((event:ClickEvent) => {
-            var context = featureAbility.getContext();
-            // @ts-ignore
-            context.getCacheDir()
-              .then((appInternalDir) => {
+                let appInternalDir = globalThis.cacheDir;
                 Log.showInfo("gzipEncodeFileTest and appInternalDir is " + appInternalDir);
                 let fpath = appInternalDir + "/hello.txt";
                 let fd = fileIO.openSync(fpath, 0o102, 0o666);
@@ -128,10 +125,7 @@ struct Compression {
 
                 httpclient.gZipUtil.gZipFile(fpath, dest);
                 Log.showInfo("gzipEncodeFile test success");
-              })
-              .catch((error) => {
-                Log.showError('Failed to obtain the file directory. Cause: ' + error.message);
-              })
+
         })
       }
       .height('10%')
@@ -142,10 +136,7 @@ struct Compression {
         Button('GZIP Decode File').width('80%').height('100%').fontSize(18).fontColor(0xCCCCCC)
           .align(Alignment.Center).margin(10)
           .onClick((event:ClickEvent) => {
-            var context = featureAbility.getContext();
-            // @ts-ignore
-            context.getCacheDir()
-              .then((appInternalDir) => {
+                let appInternalDir = globalThis.cacheDir;
                 Log.showInfo("gzipDecodeFiletest and  appInternalDir is " + appInternalDir);
 
                 let src = appInternalDir + "/test.txt.gz";
@@ -153,10 +144,7 @@ struct Compression {
 
                 httpclient.gZipUtil.ungZipFile(src, dest);
                 Log.showInfo("gzipDecodeFiletest success");
-              })
-              .catch((error) => {
-                Log.showError('Failed to obtain the file directory. Cause: ' + error.message);
-              })
+
         })
       }
       .height('10%')

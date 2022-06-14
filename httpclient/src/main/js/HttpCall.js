@@ -16,6 +16,11 @@
 import HttpTaskDispatcher from './dispatcher/HttpTaskDispatcher'
 
 class HttpCall {
+    client = null;
+    request = null;
+    isCancelledRequest = false;
+    onSuccessCallback = null;
+    onFailureCallback = null;
   constructor(httpClient, originalRequest) {
     this.client = httpClient;
     this.request = originalRequest;

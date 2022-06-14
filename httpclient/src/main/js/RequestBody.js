@@ -14,6 +14,7 @@
  */
 
 import FormatUtils from './utils/FormatUtils'
+import Log from './utils/log'
 
 var _mimes = Symbol();
 var _content = Symbol();
@@ -68,6 +69,7 @@ class RequestBody {
         rb.content = null;
       }
     }
+    Log.showInfo("request body contents:"+rb.content);
 
     rb.mimes = {};
 
@@ -79,7 +81,7 @@ class RequestBody {
       if (typeof mimes[0] === 'string') rb.mimes = FormatUtils.mimeStringArrayToObject(mimes);
       else rb.mimes = mimes[0];
     }
-
+    Log.showInfo("request body mimes:"+rb.mimes);
     return rb;
   }
 }

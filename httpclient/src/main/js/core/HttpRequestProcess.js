@@ -21,6 +21,7 @@ import {gInterceptors} from '../utils/Interceptor';
 import Log from '../utils/log';
 import BaseWorker from './BaseWorker';
 import CallbackResponse from '../callback/CallbackResponse';
+import FileUtils from '../utils/FileUtils';
 
 var TAG = 'HttpRequestProcess:: ';
 
@@ -114,8 +115,11 @@ class HttpRequestProcess extends BaseWorker {
       if (null != lRequest.cookieJar) {
         Log.showInfo('HttpRequestProcess :  cookieJar - ' + lRequest.cookieJar);
         lRequest.cookieJar.saveFromResponse(res, parsedUrl, lRequest.cookieManager);
+        Log.showInfo('saveFromResponse :  saveFromResponse - completed' );
+
       }
       if(null != lRequest.convertor) {
+        Log.showInfo('HttpRequestProcess :  convertor -started ' );
         let body = lRequest.convertor.convertResponse(res.result);
         let callbackresponse = new CallbackResponse(body,res);
         self.notifyComplete(callbackresponse);
@@ -124,8 +128,11 @@ class HttpRequestProcess extends BaseWorker {
       self[_response] = res;
 
       self[_data] = res.result;
-
+      Log.showInfo('HttpRequestProcess :  notifyComplete -res '+JSON.stringify(res) );
       self.notifyComplete(self);
+    }
+    function uploadOnResponse(data) {
+      self.notifyComplete(data);
     }
 
     function requestOnResponseDownload(res) {
@@ -139,44 +146,57 @@ class HttpRequestProcess extends BaseWorker {
     if ('UPLOAD' == lRequest.method) {
       Log.showInfo('HttpRequestProcess : Upload request - Parsed Url - ' + parsedUrl.toString());
       lRequest.files.forEach(async function (file) {
-        Log.showInfo('HttpRequestProcess : File name = ' + file.filename)
-        this[_nodeRequest] = await request.upload({
-          url: parsedUrl,
-          files: file,
-          data: lRequest.data,
-          header: {
-            'filename': file.filename
-          }
-        }, (err, data) => {
+        Log.showInfo('HttpRequestProcess : File  = ' + JSON.stringify(file))
+        let config = {
+        url: parsedUrl,
+        header: {},
+        method: "POST",
+        files: [file],
+        data: [lRequest.data],
+        };
+        this[_nodeRequest] =  request.upload(lRequest.abilityContext,config, (err, data) => {
           if (err) {
             requestOnError(err);
             return;
           }
-          requestOnResponse(data);
+          uploadOnResponse(data)
         });
       })
     } else if ('DOWNLOAD' == lRequest.method) {
-      var downloadRequestData = { url: parsedUrl };
+      var downloadRequestData = { url: parsedUrl ,filePath:''};
       if (headers) {
         downloadRequestData['header'] = headers;
       }
       if (lRequest.filePath) {
                 downloadRequestData["filePath"] = lRequest.filePath;
             } else {
-                const defaultFileDownloadDirectory = "data/misc/";
+                const defaultFileDownloadDirectory = "/data/storage/el2/base/haps/entry/files/";
                 const fileParts = parsedUrl.split('/');
                 const fileName = fileParts[fileParts.length-1];
                 downloadRequestData["filePath"] = defaultFileDownloadDirectory+fileName;
       }
-      request.download(downloadRequestData, (err, data) => {
-        if (err) {
-          requestOnError(err);
-          return;
+      Log.showInfo('downloadRequestData :  = ' + JSON.stringify(downloadRequestData))
+      if(FileUtils.exist(downloadRequestData["filePath"])){
+        Log.showInfo('filePath exits :  = ' + downloadRequestData["filePath"])
+        FileUtils.deleteFile(downloadRequestData["filePath"])
+      }
+      request.download(lRequest.abilityContext,downloadRequestData).then((downloadTask)=>{
+        Log.showInfo('download starts :  = ' + downloadTask)
+        if(downloadTask){
+          requestOnResponseDownload(downloadTask);
         }
-        requestOnResponseDownload(data);
-      });
+      }).catch((err)=>{
+        Log.showInfo('download err :  = ' + JSON.stringify(err))
+        requestOnError(err);
+        return;
+      })
+
     } else {
-      Log.showInfo('HttpRequestProcess : Parsed Url - ' + parsedUrl.toString());
+
+      Log.showInfo("------request--------------");
+      Log.showInfo('Parsed Url - ' + parsedUrl.toString());
+      Log.showInfo('options - ' + JSON.stringify(options));
+      Log.showInfo("------request--------------");
       this[_nodeRequest] = httpCarrier.request(parsedUrl, options, (err, data) => {
         Log.showInfo('HttpProcessRequest : response received for lRequest.tag : '
         + lRequest.tag + ' lRequest.isSync: ' + lRequest.isSyncCall);
@@ -190,20 +210,22 @@ class HttpRequestProcess extends BaseWorker {
           let errMsg = { code: '', data: 'Request canceled by user' };
           dispatcher.onError(errMsg, call);
         } else {
-          clearTimeout(_timeout);
           if (err == null) {
-            var lData = data;
-            if (null != lInterceptors && lInterceptors.response.interceptorList
-            && lInterceptors.response.interceptorList.length != 0) {
-              lData = this.handleInterceptor(lInterceptors.response.interceptorList, lData);
-            }
+          var lData = data;
+          Log.showInfo('HttpProcessRequest response received: '+JSON.stringify(lData))
+           if (null != lInterceptors && lInterceptors.response.interceptorList
+           && lInterceptors.response.interceptorList.length != 0) {
+             lData = this.handleInterceptor(lInterceptors.response.interceptorList, lData);
+           }
 
-            if (null != gInterceptors && gInterceptors.response.interceptorList
-            && gInterceptors.response.interceptorList.length != 0) {
-              lData = this.handleInterceptor(gInterceptors.response.interceptorList, lData);
-            }
+           if (null != gInterceptors && gInterceptors.response.interceptorList
+           && gInterceptors.response.interceptorList.length != 0) {
+             lData = this.handleInterceptor(gInterceptors.response.interceptorList, lData);
+           }
 
-            //Send redirect request, if required.
+          Log.showInfo('HttpProcessRequest after interceptors response received: '+JSON.stringify(lData))
+
+          //Send redirect request, if required.
             if (lRequest.followRedirects) {
               Log.showInfo('HttpRequestProcess : Follow redirect is enabled');
               self[_response] = lData;

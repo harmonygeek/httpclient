@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Log from './log';
 
-var _FormatUtils = {};
+function FormatUtils()  {};
 
-_FormatUtils.objectToQueryString = objectToQueryString;
-_FormatUtils.mimeStringArrayToObject = mimeStringArrayToObject;
 
 var TAG = 'FormatUtils:: ';
 
@@ -27,7 +26,7 @@ var TAG = 'FormatUtils:: ';
  *
  * @returns {String} a query string
  */
-function objectToQueryString(keyValueObject) {
+FormatUtils.objectToQueryString = function objectToQueryString(keyValueObject) {
     var value = null;
     var res = '';
     var keyValue = void 0;
@@ -60,7 +59,7 @@ function objectToQueryString(keyValueObject) {
  *
  * @return {Object} a key/value Object
  */
-function mimeStringArrayToObject(mimes) {
+FormatUtils.mimeStringArrayToObject = function mimeStringArrayToObject(mimes) {
     if (!Array.isArray(mimes)) return mimes;
 
     var keyValue = {};
@@ -100,4 +99,4 @@ function mimeStringArrayToObject(mimes) {
     return keyValue;
 }
 
-export default _FormatUtils;
+export default FormatUtils;

@@ -50,6 +50,7 @@ var _debugMode = Symbol();
 var _userAgent = Symbol();
 var _contentType = Symbol();
 var _convertorType = Symbol();
+var _abilityContext = Symbol();
 
 class Request {
   constructor(build) {
@@ -83,6 +84,8 @@ class Request {
     this[_cookieManager] = build[_cookieManager];
     this[_interceptors] = build[_interceptors];
     this[_convertorType] =build[_convertorType];
+    this[_abilityContext] =build[_abilityContext];
+
   }
 
   addHeader(key, value) {
@@ -95,6 +98,9 @@ class Request {
 
   get dataAux() {
     return this[_dataAux];
+  }
+  get abilityContext() {
+    return this[_abilityContext];
   }
 
   get httpRequestProcess() {
@@ -268,16 +274,21 @@ class Request {
         };
 
       }
+
+      setAbilityContext(abilityContext){
+        this[_abilityContext] = abilityContext;
+        return this;
+      }
       convertor(convertorType){
         this[_convertorType] = convertorType;
         return this;
       }
-      cookieJar(cookieJar) {
+      setCookieJar(cookieJar) {
         this[_cookieJar] = cookieJar;
         return this;
       }
 
-      cookieManager(cookieManager) {
+      setCookieManager(cookieManager) {
         this[_cookieManager] = cookieManager;
         return this;
       }
@@ -423,15 +434,15 @@ class Request {
         this[_classResponse] = value;
         return this;
       }
-            filePath(path) {
-                Log.showInfo("Request: filePath : "+path)
-                try {
-                    if (FileUtils.isFilePathValid(path)) {
-                        Log.showInfo("Request: isFilePathValid : true");
-                        this[_downloadFilePath] = path;
-                    }
-                } catch (err) {
-                    Log.showInfo("Request: isFilePathValid : error : "+err);
+      filePath(path) {
+        Log.showInfo("Request: filePath : "+path)
+        try {
+          if (FileUtils.isFilePathValid(path)) {
+            Log.showInfo("Request: isFilePathValid : true");
+            this[_downloadFilePath] = path;
+          }
+        } catch (err) {
+          Log.showInfo("Request: isFilePathValid : error : "+err);
                     throw new Error(err);
                 }
                 return this;
@@ -557,10 +568,10 @@ class Request {
       }
 
       build() {
+        Log.showInfo('Request: Builder.build() invoked');
         if(!this[_url]){
           throw new Error('Incorrect  URL parameters');
         }
-        Log.showInfo('Request: Builder.build() invoked');
         if (this[_cookieJar] != null) {
           Log.showInfo('Request: Build cookie... ');
           let cookieString = this[_cookieJar].loadForRequest(this[_url]);

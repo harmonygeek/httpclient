@@ -35,40 +35,49 @@ struct UploadAndDownload {
     .build();
 
   uploadRequest = async function () {
-    let appInternalDir;
-    // @ts-ignore
-    var fAbility = featureAbility.getContext().getCacheDir();
-    await fAbility.then(function (result) {
-      appInternalDir = result;
-    });
-    let fpath = appInternalDir + this.fileName;
-    let fd = fileIO.openSync(fpath, 0o102, 0o666);
-    // @ts-ignore
-    fileIO.writeSync(fd, "text.txt file is uploaded", function (err, bytesWritten) {
-    });
-    fileIO.closeSync(fd);
-    fpath = fpath.replace(appInternalDir, "internal://cache");
+    const ctx = this
+    Log.showInfo(" cacheDir   " + globalThis.cacheDir)
+    let filePath = globalThis.cacheDir + this.fileName;
+    Log.showInfo("   filePath   " + filePath)
+    let fd = fileIO.openSync(filePath, 0o102, 0o666)
+    fileIO.ftruncateSync(fd)
+    fileIO.writeSync(fd, "test httpclient")
+    fileIO.fsyncSync(fd)
+    fileIO.closeSync(fd)
+
+    Log.showInfo(" writeSync    ");
+    Log.showInfo( "create file success   ")
+
+    filePath = filePath.replace(globalThis.cacheDir, "internal://cache");
+
     var fileUploadBuilder = new httpclient.FileUpload.Builder()
-      .addFile(fpath)
+      .addFile(filePath)
       .addData("name2", "value2")
       .build();
     var fileObject = fileUploadBuilder.getFile();
     var dataObject = fileUploadBuilder.getData();
+    Log.showInfo( "fileObject:   "+JSON.stringify(fileObject));
+    Log.showInfo( "dataObject:   "+JSON.stringify(dataObject));
+
+    Log.showInfo('about to set : abilityContext - cacheDir  = ' + globalThis.abilityContext.cacheDir);
+    Log.showInfo('about to Set : abilityContext - filesDir  = ' + globalThis.abilityContext.filesDir);
+    Log.showInfo("type of :"+ typeof globalThis.abilityContext)
+
     let request = new httpclient.Request.Builder()
       .url(this.fileServer)
       .addFileParams(fileObject, dataObject)
+      .setAbilityContext(globalThis.abilityContext)
       .build();
-    this.client.newCall(request).execute().then((result) => {
-      if (result.response) {
-        this.status = ""+result.response.responseCode;
-      }
-      if (result.response.result) {
-        this.content = result.response.result;
-      } else {
-        this.content = JSON.stringify(result.response);
-      }
-      Log.showInfo("onComplete -> Status : " + this.status);
-      Log.showInfo("onComplete -> Content : " + JSON.stringify(this.content));
+    this.client.newCall(request).execute().then((data) => {
+      data.on('progress', (uploadedSize, totalSize) => {
+        Log.showInfo('progress--->uploadedSize: ' + uploadedSize + ' ,totalSize--->' + totalSize);
+        if (uploadedSize == totalSize){
+
+        }
+      })
+      data.on('headerReceive', (headers) => {
+        Log.showInfo( 'progress--->uploadSize: ' + JSON.stringify(headers));
+      })
     }).catch((error)=> {
       this.status = "";
       this.content = error.data;
@@ -104,10 +113,17 @@ struct UploadAndDownload {
           .align(Alignment.Center).margin(10)
           .onClick((event:ClickEvent) => {
             try {
+              Log.showInfo(' abilityContext - cacheDir  = ' + globalThis.abilityContext.cacheDir);
+              Log.showInfo(' abilityContext - filesDir  = ' + globalThis.abilityContext.filesDir);
               var request = new httpclient.Request.Builder()
                 .download("https://archiveprogram.github.com/assets/img/direction/box2-home.png")
+                .setAbilityContext(globalThis.abilityContext)
                 .build();
               this.client.newCall(request).execute().then((downloadTask) => {
+                downloadTask.on('progress', (receivedSize, totalSize) => {
+                  Log.showInfo('progress--->downloadedSize: ' + receivedSize + ' ,totalSize--->' + totalSize);
+
+                })
                 downloadTask.on('complete', () => {
                   Log.showInfo("download complete");
                   this.content = "Download Task Completed";
@@ -133,6 +149,7 @@ struct UploadAndDownload {
             try {
               var request = new httpclient.Request.Builder()
                 .download("https://filesamples.com/samples/font/bin/fontawesome-webfont.bin")
+                .setAbilityContext(globalThis.abilityContext)
                 .build();
               this.client.newCall(request).execute().then((downloadTask) => {
                 downloadTask.on('complete', () => {
@@ -163,13 +180,14 @@ struct UploadAndDownload {
               let fPath = this.downloadDirectory + "/sampleEnqueue.jpg";
               var request = new httpclient.Request.Builder()
                 .download("https://imgkub.com/images/2022/03/09/pexels-francesco-ungaro-15250411.jpg", fPath)
+                .setAbilityContext(globalThis.abilityContext)
                 .build();
               this.client.newCall(request).enqueue((downloadTask) => {
                 downloadTask.on('complete', () => {
                   Log.showInfo("onDownloadTaskStart download complete");
                   this.content = "Download Task Completed";
                 });
-                downloadTask.on("progress", (err, receivedSize, totalSize)=>{
+                downloadTask.on("progress", ( receivedSize, totalSize)=>{
                   Log.showInfo("onDownloadTaskStart downloadSize : "+receivedSize+" totalSize : "+totalSize);
                   this.content = ""+(receivedSize/totalSize)*100;
                 });
@@ -194,13 +212,14 @@ struct UploadAndDownload {
             let fPath = this.downloadDirectory + "/sampleExecute.jpg";
             var request = new httpclient.Request.Builder()
               .download("https://imgkub.com/images/2022/03/09/pexels-francesco-ungaro-15250411.jpg", fPath)
+              .setAbilityContext(globalThis.abilityContext)
               .build();
             this.client.newCall(request).execute().then((downloadTask) => {
               downloadTask.on('complete', () => {
                 Log.showInfo("onDownloadTaskStart download complete");
                 this.content = "Download Task Completed";
               });
-              downloadTask.on("progress", (err, receivedSize, totalSize)=>{
+              downloadTask.on("progress", ( receivedSize, totalSize)=>{
                 Log.showInfo("onDownloadTaskStart downloadSize : "+receivedSize+" totalSize : "+totalSize);
                 this.content = "" + (receivedSize/totalSize)*100;
               });
@@ -220,4 +239,5 @@ struct UploadAndDownload {
 
     }.width('100%').margin({ top: 5, bottom: 100 }).height('80%')
   }
+
 }

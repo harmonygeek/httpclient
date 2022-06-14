@@ -55,7 +55,7 @@ class HttpClient {
   }
 
   processInterceptor() {
-    if (gInterceptors.request.getSize() == 0) {
+    /*if (gInterceptors.request.getSize() == 0) {
       gInterceptors.request.use(req => {
         var header = req.headers;
         var requestJSON = JSON.parse(JSON.stringify(header));
@@ -103,6 +103,7 @@ class HttpClient {
         return resp;
       });
     }
+    */
   }
 
   newCall(request) {

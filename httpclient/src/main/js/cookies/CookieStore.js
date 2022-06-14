@@ -17,19 +17,24 @@ import featureAbility from '@ohos.ability.featureAbility'
 import {CookiePolicy} from './httpcookieutils';
 import Log from '../utils/log';
 
-function CookieStore() {
+function CookieStore(cacheDir) {
   var cookieJSON, path = null;
-  var context = featureAbility.getContext();
-  try {
+   try {
+    var context = featureAbility.getContext();
     context.getFilesDir().then(data=>{
       this.path = data
     }).catch((err) => {
       Log.showError("CookieStore getFilesDir not resolved : "+err);
+        this.path = cacheDir;
     });
   } catch (error) {
     Log.showError("CookieStore getFilesDir failed : "+error);
+    this.path = cacheDir;
   }
-  return this;
+  Log.showInfo('okhttp- CookieStore path: ' + this.path);
+}
+CookieStore.prototype.setCacheDir = function setCacheDir(filePath) {
+  this.path = filePath;
 }
 CookieStore.prototype.readCookie = function readCookie(hostname) {
   Log.showInfo('okhttp- CookieStore readCookie: ' + hostname);

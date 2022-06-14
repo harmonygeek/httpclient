@@ -32,10 +32,10 @@ FileUtils.isFilePathValid = function isFilePathValid(filePath) {
     }
 
     //As per current OS limitation, download is restricted to data/misc folder.
-    if (!directoryName.startsWith(downloadPathDirectory)) {
+   /* if (!directoryName.startsWith(downloadPathDirectory)) {
         Log.showInfo("isFilePathValid invalid directory does not contain data/misc");
         throw new Error("Invalid filepath. Download directory must be present in data/misc");
-    }
+    }*/
     Log.showInfo("isFilePathValid fileName is ok and directory name starts with data/misc");
     let isDir = false;
     let errorMsg ="";
@@ -54,5 +54,35 @@ FileUtils.isFilePathValid = function isFilePathValid(filePath) {
     return true;
 
 }
+  /**
+  * 新建文件
+  * @param path 文件绝对路径及文件名
+  * @return number 文件句柄id
+  */
+FileUtils.createFile = function createFile(path){
+    Log.showInfo('createFile:'+path)
+    return fileIO.openSync(path, 0o100, 0o666)
+  }
 
+  /**
+  * 删除文件
+  * @param path 文件绝对路径及文件名
+  */
+FileUtils.deleteFile = function  deleteFile(path){
+    Log.showInfo('Delete file:'+path)
+    fileIO.unlinkSync(path);
+  }
+ /**
+   * 判断path文件是否存在
+   */
+FileUtils.exist = function  exist(path){
+    try {
+      let stat = fileIO.statSync(path)
+      return stat.isFile()
+    } catch (e) {
+      Log.showInfo("FileUtils - fileutils exsit e" + e)
+      Log.showInfo("path=>" + path)
+      return false
+    }
+  }
 export default FileUtils;

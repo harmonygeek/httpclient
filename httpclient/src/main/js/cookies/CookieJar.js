@@ -22,11 +22,13 @@ function CookieJar() {
   var cookiesList, collidableCookie, cookies, cookiemap, cookieStore;
   this.cookieStore = null;
   this.cookies = Object.create(null);
-  return this;
 }
 
 CookieJar.prototype.setCookieStore = function setCookieStore(cookieStore) {
   this.cookieStore = cookieStore;
+}
+CookieJar.prototype.getCookieStore = function getCookieStore() {
+    return this.cookieStore;
 }
 CookieJar.prototype.setCookie = function setCookie(cookie, requestDomain, requestPath) {
     var remove, i;
@@ -123,8 +125,7 @@ CookieJar.prototype.saveFromResponse = function saveFromResponse(resp, url, cook
   Log.showInfo("okhttp- header: " + JSON.stringify(header));
 
   var responseJSON = JSON.parse(JSON.stringify(header));
-  Log.showInfo("okhttp- cookie: " + responseJSON["set-Cookie"]);
-  Log.showInfo("okhttp- cookie: " + responseJSON["set-Cookie"]);
+  Log.showInfo("okhttp- cookie: " + responseJSON["set-cookie"]);
     if(responseJSON['set-cookie']) {
             if(cookiePolicy === CookiePolicy.ACCEPT_ORIGINAL_SERVER){
                     if(!this.domainMatches(responseJSON['set-cookie'],this.extractHostname(url))){
